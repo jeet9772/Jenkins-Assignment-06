@@ -75,6 +75,9 @@ ansible-demo-project/
         └── inventory
 ```
 
+<img width="1440" height="900" alt="Screenshot 2026-09-23 at 1 28 26 PM" src="https://github.com/user-attachments/assets/b2e7f6bd-938f-4404-a8ab-80bf8fb6de35" />
+
+
 ---
 
 ## Technologies Used
@@ -119,11 +122,12 @@ KEEP_APPROVAL_STAGE=true
 
 The project Jenkinsfile loads the shared library and calls the reusable deployment function.
 
-```groovy
-@Library('ansible-shared-library') _
 
-ansibleDeploy('config.properties')
-```
+<img width="1897" height="357" alt="build" src="https://github.com/user-attachments/assets/09d8d9ad-abe0-45e1-85ae-906d8ace58e8" />
+
+
+
+
 
 This keeps the project Jenkinsfile simple while the actual deployment logic remains inside the shared library.
 
