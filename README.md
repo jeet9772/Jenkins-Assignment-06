@@ -58,6 +58,9 @@ ansible-shared-library/
     └── ansibleDeploy.groovy
 ```
 
+<img width="1440" height="900" alt="Screenshot 2026-09-23 at 1 12 30 PM" src="https://github.com/user-attachments/assets/0d255436-7a6a-4474-bcb4-35bbf9428ad9" />
+
+
 ### Ansible Demo Project
 
 ```text
