@@ -123,10 +123,7 @@ KEEP_APPROVAL_STAGE=true
 The project Jenkinsfile loads the shared library and calls the reusable deployment function.
 
 
-<img width="1897" height="357" alt="build" src="https://github.com/user-attachments/assets/09d8d9ad-abe0-45e1-85ae-906d8ace58e8" />
-
-
-
+<img width="1897" height="357" alt="build" src="https://github.com/user-attachments/assets/328f99d9-50cb-4d0a-b339-86b1f37f3bae" />
 
 
 This keeps the project Jenkinsfile simple while the actual deployment logic remains inside the shared library.
