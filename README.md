@@ -1,330 +1,236 @@
+# Jenkins Assignment 6 – Ansible Shared Library
 
-# Jenkins Ansible Shared Library
+## Objective
 
-## Overview
+Create a Jenkins Ansible Shared Library for Redis deployment with:
 
-This project demonstrates a reusable **Jenkins Shared Library** for automating Ansible deployments.
-
-The pipeline is designed to perform the complete deployment workflow:
-
-**Clone → Configuration → User Approval → Ansible Playbook Execution → Slack Notification**
-
-The pipeline receives its required inputs from a centralized `config.properties` file, making the shared library reusable across different environments and projects.
+1. Clone
+2. User Approval
+3. Playbook Execution
+4. Notification
 
 ---
 
 ## Architecture
 
 ```text
-                    GitHub
-                      |
-          +-----------+-----------+
-          |                       |
-          v                       v
- ansible-shared-library     ansible-demo-project
-          |                       |
-          |                       |
-          +---------- Jenkins ----+
-                       |
-                       v
-                Load Configuration
-                       |
-                       v
-                  Clone Code
-                       |
-                       v
-                 User Approval
-                       |
-                       v
-             Ansible Playbook
-                       |
-                       v
-                  AWS EC2
-                       |
-                       v
-               Slack Notification
+GitHub
+  |
+  v
+Jenkins Pipeline
+  |
+  v
+Ansible Shared Library
+  |
+  +--> Clone
+  |
+  +--> User Approval
+  |
+  +--> Ansible Playbook
+  |
+  +--> Slack Notification
+  |
+  v
+Redis EC2 Server
 ```
 
 ---
 
-## Repository Structure
+## Infrastructure
 
-### Shared Library Repository
+### Jenkins Server
+
+* OS: Ubuntu 24.04
+* Jenkins: 2.568.3
+* Ansible: 2.16.3
+* Java: 21
+
+### Redis Server
+
+* OS: Ubuntu 24.04
+* Redis: 7.0.15
+* Private IP: `172.31.11.179`
+* Service: `redis-server`
+
+---
+
+## GitHub Repositories
+
+### Ansible Project
 
 ```text
-ansible-shared-library/
-│
+https://github.com/jeet9772/Redis_Ansible_Assignment6.git
+```
+
+Structure:
+
+```text
+Redis_Ansible_Assignment6/
+├── inventory
+├── playbook.yml
+├── ansible.cfg
+└── config/
+    └── redis-prod.conf
+```
+
+### Shared Library
+
+```text
+https://github.com/jeet9772/Jenkins-Ansible-Shared-Library.git
+```
+
+Structure:
+
+```text
+Jenkins-Ansible-Shared-Library/
 └── vars/
     └── ansibleDeploy.groovy
 ```
-
-<img width="1440" height="900" alt="Screenshot 2026-09-23 at 1 12 30 PM" src="https://github.com/user-attachments/assets/0d255436-7a6a-4474-bcb4-35bbf9428ad9" />
-
-
-### Ansible Demo Project
-
-```text
-ansible-demo-project/
-│
-├── Jenkinsfile
-├── config.properties
-│
-└── env/
-    └── prod/
-        ├── playbook.yml
-        └── inventory
-```
-
-<img width="1440" height="900" alt="Screenshot 2026-09-23 at 1 28 26 PM" src="https://github.com/user-attachments/assets/b2e7f6bd-938f-4404-a8ab-80bf8fb6de35" />
-
-
----
-
-## Technologies Used
-
-* Jenkins
-* Jenkins Shared Libraries
-* Ansible
-* Git & GitHub
-* AWS EC2
-* SSH
-* Slack
-* Groovy
-* YAML
 
 ---
 
 ## Configuration
 
-All required pipeline inputs are maintained in `config.properties`.
+File:
 
-```properties
+```text
+config/redis-prod.conf
+```
+
+```text
 SLACK_CHANNEL_NAME=build-status
 ENVIRONMENT=prod
 CODE_BASE_PATH=env/prod
-ACTION_MESSAGE=Ansible deployment completed successfully
+ACTION_MESSAGE=Redis deployment completed successfully
 KEEP_APPROVAL_STAGE=true
 ```
 
-### Configuration Parameters
-
-| Parameter             | Description                                    |
-| --------------------- | ---------------------------------------------- |
-| `SLACK_CHANNEL_NAME`  | Slack channel where the notification is sent   |
-| `ENVIRONMENT`         | Deployment environment                         |
-| `CODE_BASE_PATH`      | Location of the Ansible playbook and inventory |
-| `ACTION_MESSAGE`      | Slack notification message                     |
-| `KEEP_APPROVAL_STAGE` | Controls whether manual approval is required   |
-
 ---
 
-## Jenkinsfile
-
-The project Jenkinsfile loads the shared library and calls the reusable deployment function.
-
-
-<img width="1897" height="357" alt="build" src="https://github.com/user-attachments/assets/328f99d9-50cb-4d0a-b339-86b1f37f3bae" />
-
-
-This keeps the project Jenkinsfile simple while the actual deployment logic remains inside the shared library.
-
----
-
-## Shared Library Workflow
-
-### 1. Load Configuration
-
-The pipeline reads `config.properties` using the Jenkins Pipeline Utility Steps plugin.
+## Jenkins Pipeline
 
 ```groovy
-config = readProperties file: configFile
-```
+@Library('ansible-shared-library') _
 
-The configuration is then used throughout the pipeline.
+pipeline {
+    agent any
+
+    stages {
+        stage('Redis Deployment') {
+            steps {
+                script {
+                    ansibleDeploy(
+                        gitUrl: 'https://github.com/jeet9772/Redis_Ansible_Assignment6.git',
+                        gitBranch: 'main',
+                        configFile: 'config/redis-prod.conf',
+                        inventory: 'inventory',
+                        playbook: 'playbook.yml'
+                    )
+                }
+            }
+        }
+    }
+}
+```
 
 ---
 
-### 2. Clone
+## Shared Library Stages
 
-The source code is checked out from the configured SCM repository.
+### 1. Clone
 
-```groovy
-checkout scm
-```
+Clones the Redis Ansible project from GitHub.
 
----
+### 2. User Approval
 
-### 3. User Approval
-
-Before deployment, Jenkins asks for manual approval when:
+Jenkins asks for approval before production deployment.
 
 ```text
-KEEP_APPROVAL_STAGE=true
+Approve Redis deployment to prod?
 ```
 
-The approval message identifies the target environment.
+### 3. Playbook Execution
+
+Ansible executes the Redis playbook on the Redis EC2 server.
+
+Result:
 
 ```text
-Approve deployment to prod?
+Redis service status: active
 ```
 
-This provides a manual control before executing the Ansible deployment.
+### 4. Notification
 
----
-
-### 4. Ansible Playbook Execution
-
-The pipeline executes the Ansible playbook using the configured path and inventory.
-
-```bash
-ansible-playbook env/prod/playbook.yml \
--i env/prod/inventory \
--e environment=prod \
---ssh-common-args='-o StrictHostKeyChecking=no'
-```
-
-The Ansible inventory contains the target EC2 instance and SSH connection details.
-
----
-
-## Ansible Playbook
-
-The demonstration playbook performs OS-specific tasks:
-
-```yaml
----
-- name: Load OS specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
-
-- name: Run tasks for CentOS/RedHat
-  include_tasks: redhat.yml
-  when: ansible_os_family == "RedHat"
-
-- name: Run tasks for Ubuntu/Debian
-  include_tasks: ubuntu.yml
-  when: ansible_os_family == "Debian"
-```
-
-### Deployment Result
-
-After successful execution, the following file is created on the target EC2 instance:
-
-```text
-/tmp/ansible-demo.txt
-```
-
-This confirms that Jenkins successfully triggered Ansible and Ansible successfully connected to and executed tasks on the EC2 instance.
-
----
-
-## Slack Notification
-
-After successful playbook execution, the shared library sends a notification to the configured Slack channel.
-
-```groovy
-slackSend(
-    channel: config.SLACK_CHANNEL_NAME,
-    message: config.ACTION_MESSAGE
-)
-```
-
-For the current configuration, the notification is sent to:
+After deployment, Jenkins sends the deployment message to the Slack:
 
 ```text
 #build-status
 ```
 
-with the message:
+---
+
+## Ansible Playbook
+
+The playbook:
+
+* Installs Redis
+* Enables Redis service
+* Starts Redis service
+* Checks Redis status
+* Displays Redis status
+
+Successful result:
 
 ```text
-Ansible deployment completed successfully
+ok=5
+changed=0
+unreachable=0
+failed=0
 ```
 
 ---
 
-## Jenkins Pipeline Flow
+## Jenkins Credentials
+
+### SSH Key
 
 ```text
-START
-  |
-  v
-Load Configuration
-  |
-  v
-Clone Repository
-  |
-  v
+/var/lib/jenkins/Jeet11.pem
+```
+
+### Slack Webhook
+
+Credential ID:
+
+```text
+slack-webhook
+```
+
+---
+
+## Final Result
+
+The Jenkins pipeline successfully performs:
+
+```text
+Clone
+  ↓
 User Approval
-  |
-  v
-Execute Ansible Playbook
-  |
-  v
-Deploy to AWS EC2
-  |
-  v
-Send Slack Notification
-  |
-  v
-SUCCESS
+  ↓
+Ansible Playbook Execution
+  ↓
+Redis Deployment
+  ↓
+Slack Notification
 ```
 
----
-
-## Prerequisites
-
-Before running the pipeline, ensure the following are available:
-
-* Jenkins
-* Ansible installed on the Jenkins execution node
-* Git configured in Jenkins
-* Jenkins Pipeline Utility Steps plugin
-* Slack Notification plugin
-* AWS EC2 instance
-* SSH access from Jenkins to the EC2 instance
-* Required Jenkins Shared Library configuration
-* Required Slack credentials/configuration
-
----
-
-## Jenkins Shared Library Configuration
-
-The shared library is configured in:
+Redis deployment was successfully verified with:
 
 ```text
-Manage Jenkins
-→ System
-→ Global Trusted Pipeline Libraries
+Redis service status: active
 ```
-
-### Configuration
-
-```text
-Name: ansible-shared-library
-Default Version: main
-SCM: Git
-Repository:
-https://github.com/bhumi262/jenkins-shared-library.git
-```
-
----
-
-## Benefits of Using a Shared Library
-
-Using a Jenkins Shared Library provides:
-
-* Reusable pipeline logic
-* Centralized CI/CD automation
-* Reduced Jenkinsfile complexity
-* Consistent deployment workflow
-* Configuration-driven execution
-* Easier maintenance
-* Reusability across multiple projects and environments
-
----
 
 ## Conclusion
 
-This project demonstrates how Jenkins Shared Libraries can be used to create a reusable and configuration-driven Ansible deployment pipeline.
+Jenkins Ansible Shared Library was created and integrated with the Redis deployment pipeline. The pipeline supports configuration-based deployment, manual approval, Ansible execution, and Slack notification.
 
-The implementation automates the complete workflow from source code checkout to manual approval, Ansible execution on AWS EC2, and Slack notification, providing a simple foundation for scalable CI/CD automation.
