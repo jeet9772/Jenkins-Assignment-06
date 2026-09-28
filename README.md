@@ -45,6 +45,10 @@ Redis EC2 Server
 * Ansible: 2.16.3
 * Java: 21
 
+
+<img width="1440" height="900" alt="Screenshot 2026-09-28 at 11 19 03 PM" src="https://github.com/user-attachments/assets/a8536cef-37a0-4a41-84a3-49654277c728" />
+
+
 ### Redis Server
 
 * OS: Ubuntu 24.04
@@ -53,6 +57,9 @@ Redis EC2 Server
 * Service: `redis-server`
 
 ---
+
+<img width="1440" height="900" alt="Screenshot 2026-09-28 at 11 20 32 PM" src="https://github.com/user-attachments/assets/c6629b27-0061-45ee-928c-09cbcc895787" />
+
 
 ## GitHub Repositories
 
@@ -73,6 +80,9 @@ Redis_Ansible_Assignment6/
     └── redis-prod.conf
 ```
 
+
+<img width="1440" height="900" alt="Screenshot 2026-09-28 at 11 23 48 PM" src="https://github.com/user-attachments/assets/7bc1df02-35f2-460b-97cc-3c65dbc07e68" />
+
 ### Shared Library
 
 ```text
@@ -88,6 +98,9 @@ Jenkins-Ansible-Shared-Library/
 ```
 
 ---
+
+
+<img width="1440" height="900" alt="Screenshot 2026-09-28 at 11 24 38 PM" src="https://github.com/user-attachments/assets/b829f587-185e-41de-affe-4371f849e1de" />
 
 ## Configuration
 
@@ -106,6 +119,9 @@ KEEP_APPROVAL_STAGE=true
 ```
 
 ---
+
+
+<img width="1440" height="900" alt="Screenshot 2026-09-28 at 11 25 50 PM" src="https://github.com/user-attachments/assets/b106c275-cf60-4b54-ad71-b1e1560e841d" />
 
 ## Jenkins Pipeline
 
@@ -135,6 +151,9 @@ pipeline {
 
 ---
 
+<img width="1440" height="900" alt="Screenshot 2026-09-28 at 11 26 48 PM" src="https://github.com/user-attachments/assets/a19128df-2500-47f8-9050-4019ba965afd" />
+
+
 ## Shared Library Stages
 
 ### 1. Clone
@@ -148,6 +167,9 @@ Jenkins asks for approval before production deployment.
 ```text
 Approve Redis deployment to prod?
 ```
+
+
+<img width="1440" height="900" alt="Screenshot 2026-09-28 at 11 31 19 PM" src="https://github.com/user-attachments/assets/5d4b1ad5-a5e4-4b9c-a843-c22c5283ab84" />
 
 ### 3. Playbook Execution
 
@@ -181,6 +203,9 @@ The playbook:
 
 Successful result:
 
+<img width="1440" height="900" alt="Screenshot 2026-09-28 at 11 32 57 PM" src="https://github.com/user-attachments/assets/82d50b66-a08b-4e78-9372-f953187e9002" />
+
+
 ```text
 ok=5
 changed=0
@@ -197,6 +222,8 @@ failed=0
 ```text
 /var/lib/jenkins/Jeet11.pem
 ```
+<img width="1440" height="900" alt="Screenshot 2026-09-28 at 11 32 57 PM" src="https://github.com/user-attachments/assets/3bcf5633-db5b-4a95-a55c-1e661a6f46cf" />
+
 
 ### Slack Webhook
 
@@ -207,6 +234,8 @@ slack-webhook
 ```
 
 ---
+<img width="1440" height="900" alt="Screenshot 2026-09-28 at 11 35 17 PM" src="https://github.com/user-attachments/assets/a8ec4793-16de-4d0a-997d-61355cd546fd" />
+
 
 ## Final Result
 
